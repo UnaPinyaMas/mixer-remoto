@@ -7,14 +7,14 @@ Volumen de cada aplicación, salida de audio, música y micrófono, con una inte
 
 ![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4?logo=windows&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)
-![Licencia](https://img.shields.io/badge/licencia-MIT-green)
+![Licencia](https://img.shields.io/badge/licencia-PolyForm%20Noncommercial-orange)
 ![Coste](https://img.shields.io/badge/coste-0%20%E2%82%AC-brightgreen)
 
 <img src="docs/hero.png" alt="El Mixer en el móvil: tema claro, tema oscuro y modo edición" width="900">
 
 </div>
 
-> **English:** a self-hosted web app (Flask + WASAPI) that turns your phone into a per-application audio mixer for a Windows PC — faders, LED meters, output switching, media keys, mic control, and "duck the music when someone talks on Discord". UI in Spanish. No cloud, no accounts, no cost.
+> **English:** a self-hosted web app (Flask + WASAPI) that turns your phone into a per-application audio mixer for a Windows PC — faders, LED meters, output switching, media keys, mic control, and "duck the music when someone talks on Discord". UI in Spanish. No cloud, no accounts, no cost. Free for non-commercial use ([PolyForm Noncommercial 1.0.0](LICENSE)); commercial use needs the author's permission.
 
 ---
 
@@ -185,4 +185,14 @@ instalar-autoarranque.bat   Arranque con Windows
 
 ## 📄 Licencia
 
-[MIT](LICENSE). Úsalo, cámbialo y compártelo libremente.
+**[PolyForm Noncommercial 1.0.0](LICENSE)**: el código es público y gratuito para uso **no comercial**.
+
+| | |
+|---|---|
+| ✅ **Puedes** | Descargarlo, usarlo, estudiarlo, **modificarlo** y compartirlo (incluidas tus modificaciones) para uso personal, de aficionado, educativo, de investigación o en organizaciones sin ánimo de lucro, **manteniendo los avisos de la licencia y el nombre del autor**. |
+| ❌ **No puedes** | Venderlo, incluirlo en un producto o servicio de pago, ni usarlo con fines comerciales, **sin permiso del autor**. |
+| ✉️ **¿Uso comercial?** | Abre un [issue](https://github.com/UnaPinyaMas/mixer-remoto/issues) y lo hablamos. |
+
+> Al restringir el uso comercial, no es una licencia «de código abierto» en el sentido estricto de la OSI, sino de *código disponible*. Las librerías que usa el proyecto (Flask, pycaw, etc.) conservan sus propias licencias.
+>
+> Esto es una explicación en lenguaje llano; lo que vale es el texto del archivo [LICENSE](LICENSE).
