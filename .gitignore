@@ -1,0 +1,20 @@
+# --- Secretos y datos personales: NUNCA se suben ---
+# huella del PIN
+pin.json
+# ID y secreto de tu aplicación de Discord, y el permiso
+discord_rpc.json
+# tus apps ocultas/fijadas y ajustes
+prefs.json
+# volúmenes guardados al bajar la música
+duck_state.json
+
+# --- Generado al ejecutar ---
+# iconos extraídos de tus programas
+/icons/
+*.log
+*.log.old
+*.tmp
+__pycache__/
+*.pyc
+.venv/
+venv/
