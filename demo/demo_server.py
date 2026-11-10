@@ -3,6 +3,9 @@
     python demo/demo_server.py            ->  http://localhost:8090
 
 Sirve para probar el diseño, hacer capturas y desarrollar la interfaz en cualquier sistema.
+
+EN: Demo mode: the Mixer interface with fake data, without touching real audio or needing Windows.
+Useful to try the design, take screenshots and develop the UI on any system.
 """
 import hashlib
 import io
@@ -38,7 +41,7 @@ STATE = {
     "prefs": {"hidden": [], "pinned": ["Spotify.exe"],
               "duck": {"enabled": True, "level": 30, "threshold": 12, "triggers": ["Discord.exe"], "targets": ["Spotify.exe"]}},
     "rpc": {"configured": True, "connected": True, "channel": True, "channel_name": "Sala de juegos",
-            "speaking": 0, "status": "Conectado a Discord"},
+            "speaking": 0, "code": "connected", "detail": "", "status": "Conectado a Discord"},
     "mute_all": False,
 }
 
@@ -52,6 +55,27 @@ def peak(ph, amp, t):
 
 
 FORCE_TALK = None   # None = alterna sola; True/False = fijo (para las capturas)
+DEMO_LANG = "es"    # idioma de los datos ficticios (nombres de dispositivos, canción, canal de voz)
+EN_DATA = {
+    "Auriculares (HyperSound Pro Wireless)": "Headphones (HyperSound Pro Wireless)",
+    "Micrófono (HyperSound Pro Wireless)": "Microphone (HyperSound Pro Wireless)",
+    "Altavoces (Realtek Audio)": "Speakers (Realtek Audio)",
+    "Lofi para estudiar": "Lofi for studying",
+    "Sala de juegos": "Game room",
+}
+
+
+def localize(snap):
+    """Traduce los textos de ejemplo (los de la interfaz los traduce la propia web)."""
+    if DEMO_LANG != "en":
+        return
+    tr = lambda s: EN_DATA.get(s, s)
+    snap["master"]["device"] = tr(snap["master"]["device"])
+    snap["mic"]["device"] = tr(snap["mic"]["device"])
+    for o in snap["outputs"]:
+        o["name"] = tr(o["name"])
+    snap["media"]["title"] = tr(snap["media"]["title"])
+    snap["rpc"]["channel_name"] = tr(snap["rpc"]["channel_name"])
 
 
 def snapshot():
@@ -71,6 +95,7 @@ def snapshot():
     snap["ducking"] = talking and STATE["prefs"]["duck"]["enabled"]
     snap["rpc"]["speaking"] = 1 if talking else 0
     snap["voice"] = {"level": 0, "threshold": 12, "calibrating": False}
+    localize(snap)
     return snap
 
 
@@ -101,6 +126,13 @@ def frame():
     w, h, p = int(request.args.get("w", 390)), int(request.args.get("h", 900)), request.args.get("p", "/")
     return Response(f"<!doctype html><meta charset=utf-8><body style='margin:0;background:#888'>"
                     f"<iframe src='{p}' width={w} height={h} style='border:0;display:block'></iframe>", mimetype="text/html")
+
+
+@app.route("/demo/lang")
+def demo_lang():
+    global DEMO_LANG
+    DEMO_LANG = "en" if request.args.get("l") == "en" else "es"
+    return jsonify(lang=DEMO_LANG)
 
 
 @app.route("/demo/talk")
@@ -241,5 +273,5 @@ def duck():
 
 
 if __name__ == "__main__":
-    print(f"\n  Mixer (modo demo, datos ficticios):  http://localhost:{PORT}\n")
+    print(f"\n  Mixer (modo demo / demo mode, fake data):  http://localhost:{PORT}  (?lang=es | ?lang=en)\n")
     app.run(host="127.0.0.1", port=PORT, threaded=True)

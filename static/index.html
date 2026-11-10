@@ -253,6 +253,11 @@
     background:radial-gradient(circle at 35% 30%,var(--cap1),var(--cap2)); box-shadow:inset 0 0 0 1px rgba(0,0,0,.28), 0 1px 0 var(--hi); }
   .screw::after { content:""; position:absolute; inset:5px 2px; background:rgba(0,0,0,.5); border-radius:1px; transform:rotate(35deg); }
   .screw.s2::after { transform:rotate(-20deg); }
+  .lang { display:flex; gap:4px; flex:none; }
+  .lang button { border:0; border-radius:8px; padding:5px 9px; background:var(--key); color:var(--muted); font:600 13px var(--f-cond);
+    box-shadow:inset 0 1px 0 var(--key-hi), 0 2px 0 var(--key-edge); }
+  .lang button.on { color:var(--ink); background:var(--strip); box-shadow:inset 0 2px 4px var(--drop), 0 0 0 1px var(--edge); }
+  .lang button:active { transform:translateY(1px); }
   .grille { flex:1; height:14px; background:var(--groove); opacity:.9; box-shadow:inset 0 1px 2px rgba(0,0,0,.4);
     -webkit-mask-image:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 8px); mask-image:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 8px); border-radius:7px; }
 
@@ -292,7 +297,7 @@
       <h1>Mixer</h1>
     </div>
     <div class="status off" id="status" role="status" aria-live="polite">
-      <span class="dot off" id="dot"></span><span id="st">Conectando…</span>
+      <span class="dot off" id="dot"></span><span id="st" data-i18n="conn.connecting">Conectando…</span>
       <span class="sig" id="sig" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
     </div>
   </header>
@@ -302,21 +307,21 @@
     <section id="outputs"></section>
   </div>
   <div class="toolbar">
-    <button class="tb" id="muteAll" aria-pressed="false"><span class="l"></span><span class="t">Silenciar todo</span></button>
-    <button class="tb" id="editBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/></svg><span class="t">Editar canales</span></button>
-    <button class="tb wide" id="duckBtn" aria-pressed="false"><span class="l"></span><span class="t">Bajar música al hablar</span></button>
+    <button class="tb" id="muteAll" aria-pressed="false"><span class="l"></span><span class="t" data-i18n="act.muteAll">Silenciar todo</span></button>
+    <button class="tb" id="editBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/></svg><span class="t" data-i18n="act.edit">Editar canales</span></button>
+    <button class="tb wide" id="duckBtn" aria-pressed="false"><span class="l"></span><span class="t" data-i18n="duck.btn">Bajar música al hablar</span></button>
     <p class="hint rpc" id="rpcLine" hidden></p>
     <div class="duckrow" id="duckRow" hidden>
-      <span class="dl">Baja hasta</span>
-      <div class="dsl" id="duckSl" role="slider" aria-label="Nivel al que baja la música" aria-valuemin="0" aria-valuemax="90"><div class="df"></div><b>30%</b></div>
+      <span class="dl" data-i18n="duck.downTo">Baja hasta</span>
+      <div class="dsl" id="duckSl" role="slider" data-i18n-aria="duck.downToAria" aria-valuemin="0" aria-valuemax="90"><div class="df"></div><b>30%</b></div>
     </div>
     <div class="duckrow" id="voiceRow" hidden>
-      <span class="dl">Se activa con</span>
-      <div class="dsl vs" id="voiceSl" role="slider" aria-label="Nivel de sonido a partir del cual se baja la música" aria-valuemin="1" aria-valuemax="60"><i class="lv"></i><i class="thm"></i><b>12%</b></div>
+      <span class="dl" data-i18n="duck.triggerAt">Se activa con</span>
+      <div class="dsl vs" id="voiceSl" role="slider" data-i18n-aria="duck.triggerAria" aria-valuemin="1" aria-valuemax="60"><i class="lv"></i><i class="thm"></i><b>12%</b></div>
     </div>
-    <button class="tb wide mini" id="calBtn" hidden><span class="t">Medir silencio</span></button>
-    <p class="hint" id="voiceHint" hidden>Cuando nadie hable, la barra verde no debe pasar de la raya. Si la pasa, pulsa «Medir silencio» con nadie hablando durante 4 segundos.</p>
-    <p class="hint" id="hint" hidden>«Voz» hace que, cuando suene esa app, bajen los canales marcados con «Bajar». Solo actúa si «Bajar música al hablar» está activado.</p>
+    <button class="tb wide mini" id="calBtn" hidden><span class="t" data-i18n="duck.measure">Medir silencio</span></button>
+    <p class="hint" id="voiceHint" data-i18n="duck.voiceHint" hidden></p>
+    <p class="hint" id="hint" data-i18n="duck.editHint" hidden></p>
   </div>
   <section class="console">
     <div class="railwrap">
@@ -325,11 +330,12 @@
     </div>
     <div id="masterbox"></div>
   </section>
-  <p class="empty" id="empty" hidden>No suena nada ahora mismo. Cuando abras una app con sonido, aparecerá como un canal nuevo.</p>
+  <p class="empty" id="empty" data-i18n="empty.default" hidden></p>
 
-  <footer class="foot" aria-hidden="true"><i class="screw"></i><div class="grille"></div><i class="screw s2"></i></footer>
+  <footer class="foot"><i class="screw" aria-hidden="true"></i><div class="grille" aria-hidden="true"></div><div class="lang" data-lang-switch></div><i class="screw s2" aria-hidden="true"></i></footer>
 </main>
 
+<script src="/static/i18n.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const ICON = {
@@ -384,13 +390,13 @@ function makeChannel(id, kind, label) {
       <div class="led"><i></i><u></u></div>
       <div class="fader"><div class="ticks"></div><div class="stop t"></div><div class="stop b"></div><div class="slot"><div class="lvl"></div></div><div class="cap"></div></div>
     </div>
-    <button class="mute" aria-label="Silenciar ${label}"><span class="l"></span>Mute</button>
+    <button class="mute" aria-label="${t('ch.muteAria', { name:label })}"><span class="l"></span>${t('ch.mute')}</button>
     <div class="tag"><span class="logo">${logo}</span><span class="nm"></span><span class="sb" hidden></span></div>
     ${kind === 'app' ? `<div class="edit">
-      <button class="eb pinb" aria-label="Fijar ${label} arriba"><span class="c">${ICON.pin}</span><span class="tx">Fijar</span></button>
-      <button class="eb hideb" aria-label="Ocultar ${label}"><span class="c">${ICON.eyeoff}</span><span class="tx">Ocultar</span></button>
-      <button class="eb voxb" aria-label="${label} es una app de voz"><span class="c">${ICON.mic}</span><span class="tx">Voz</span></button>
-      <button class="eb dkb" aria-label="Bajar ${label} cuando hable la voz"><span class="c">${ICON.down}</span><span class="tx">Bajar</span></button>
+      <button class="eb pinb" aria-label="${t('ch.pinAria', { name:label })}"><span class="c">${ICON.pin}</span><span class="tx">${t('ch.pin')}</span></button>
+      <button class="eb hideb" aria-label="${t('ch.hideAria', { name:label })}"><span class="c">${ICON.eyeoff}</span><span class="tx">${t('ch.hide')}</span></button>
+      <button class="eb voxb" aria-label="${t('ch.voiceAria', { name:label })}"><span class="c">${ICON.mic}</span><span class="tx">${t('ch.voice')}</span></button>
+      <button class="eb dkb" aria-label="${t('ch.lowerAria', { name:label })}"><span class="c">${ICON.down}</span><span class="tx">${t('ch.lower')}</span></button>
     </div>` : ''}`;
   el.querySelector('.nm').textContent = label;
   if (kind === 'app') {
@@ -497,9 +503,9 @@ const sigEls = [...document.querySelectorAll('#sig i')]; let sigN = -1, offline 
 const dbFrac = p => p < .012 ? 0 : Math.max(0, Math.min(1, (20 * Math.log10(p) + 48) / 48));
 (function loop(now) {
   for (const M of meters.values()) {
-    const t = M.target;
-    M.shown += (t - M.shown) * (t > M.shown ? .65 : .16);
-    if (M.shown < .3 && t === 0) M.shown = 0;
+    const goal = M.target;
+    M.shown += (goal - M.shown) * (goal > M.shown ? .65 : .16);
+    if (M.shown < .3 && goal === 0) M.shown = 0;
     const f = dbFrac(M.shown / 100);
     if (f >= M.hold) { M.hold = f; M.holdT = now + 700; } else if (now > M.holdT) M.hold = Math.max(0, M.hold - .015);
     const red = f >= .84;   // el LED llega a la zona roja: destello en el número
@@ -523,7 +529,7 @@ function devInfo(name) {
   const main = m ? m[2] : name, sub = m ? m[1] : '', n = name.toLowerCase();
   const kind = /audífono|audifono|auricular|headset|headphone|casco|airpods/.test(n) ? 'headphones'
              : /nvidia|hdmi|display|monitor|\blc\d|\bdp\b/.test(n) ? 'monitor' : 'speaker';
-  const label = kind === 'headphones' ? 'Auriculares' : kind === 'speaker' ? 'Altavoces' : (sub || 'Monitor');
+  const label = kind === 'headphones' ? t('dev.headphones') : kind === 'speaker' ? t('dev.speakers') : (sub || t('dev.monitor'));
   return { kind, label, brand:main.split(/\s+/)[0] };
 }
 let outSig = '', lockOut = 0;
@@ -532,7 +538,7 @@ function renderOutputs(list) {
   if (sig !== outSig) {
     outSig = sig; box.innerHTML = '';
     if (list.length < 2) return;
-    const row = document.createElement('div'); row.className = 'outs'; row.setAttribute('role', 'radiogroup'); row.setAttribute('aria-label', 'Salida de audio');
+    const row = document.createElement('div'); row.className = 'outs'; row.setAttribute('role', 'radiogroup'); row.setAttribute('aria-label', t('dev.outputAria'));
     list.forEach(o => {
       const i = devInfo(o.name), b = document.createElement('button');
       b.className = 'out'; b.dataset.id = o.id; b.setAttribute('role', 'radio');
@@ -564,9 +570,9 @@ function renderMedia(m) {
       <div class="bars"><i></i><i></i><i></i></div>
       <div class="mt"><b></b><small></small></div>
       <div class="keys">
-        <button class="key" data-a="prev" aria-label="Anterior">${ICON.prev}</button>
-        <button class="key go" data-a="play_pause" aria-label="Reproducir o pausar"></button>
-        <button class="key" data-a="next" aria-label="Siguiente">${ICON.next}</button>
+        <button class="key" data-a="prev" aria-label="${t('media.prev')}">${ICON.prev}</button>
+        <button class="key go" data-a="play_pause" aria-label="${t('media.play')}"></button>
+        <button class="key" data-a="next" aria-label="${t('media.next')}">${ICON.next}</button>
       </div>`;
     mediaEl.querySelectorAll('.key').forEach(b => b.addEventListener('click', () => {
       if (b.dataset.a === 'play_pause') { const on = !mediaEl.classList.contains('playing'); mediaEl.classList.toggle('playing', on); b.innerHTML = on ? ICON.pause : ICON.play; }
@@ -574,10 +580,10 @@ function renderMedia(m) {
     }));
     box.appendChild(mediaEl);
   }
-  const t = mediaEl.querySelector('b'), s = mediaEl.querySelector('small');
-  const title = m.title || 'Sin título', sub = [m.artist, pretty(m.app || '')].filter(Boolean).join(' · ');
-  if (t.textContent !== title) t.textContent = title;
-  if (s.textContent !== sub) s.textContent = sub;
+  const titleEl = mediaEl.querySelector('b'), subEl = mediaEl.querySelector('small');   // (no llamarlos "t": taparía la función t() de traducción)
+  const title = m.title || t('media.untitled'), sub = [m.artist, pretty(m.app || '')].filter(Boolean).join(' · ');
+  if (titleEl.textContent !== title) titleEl.textContent = title;
+  if (subEl.textContent !== sub) subEl.textContent = sub;
   mediaEl.classList.toggle('playing', m.playing);
   const pb = mediaEl.querySelector('.go'), html = m.playing ? ICON.pause : ICON.play;
   if (pb.dataset.h !== html) { pb.innerHTML = html; pb.dataset.h = html; }
@@ -598,18 +604,23 @@ function setDuckRole(name, key, on) {
   if (lastSnap) apply(lastSnap);
 }
 const VMAX = 60;   // la escala del umbral va de 0 a 60 %
+/* el servidor manda un código (rpc.code) y un detalle; aquí se traduce al idioma elegido */
+function rpcStatus(rpc) {
+  return rpc.code ? t('rpc.st.' + rpc.code, { detail:rpc.detail || '' }) : (rpc.status || '');
+}
 function paintRpc(rpc) {
   const d = prefs.duck, el = $('#rpcLine'), rc = !!(rpc && rpc.connected);
   el.hidden = !d.enabled;
   let txt, cls = '';
   if (rc && rpc.channel) {
     cls = rpc.speaking > 0 ? 'talk' : 'ok';
-    const ch = rpc.channel_name ? '«' + rpc.channel_name + '» · ' : '';
-    txt = rpc.speaking > 0 ? ch + (rpc.speaking === 1 ? 'alguien habla' : rpc.speaking + ' personas hablan') : ch + 'nadie habla';
+    const [qo, qc] = LANG() === 'es' ? ['«', '»'] : ['“', '”'];
+    const ch = rpc.channel_name ? qo + rpc.channel_name + qc + ' · ' : '';
+    txt = rpc.speaking > 0 ? ch + (rpc.speaking === 1 ? t('rpc.talk1') : t('rpc.talkN', { n:rpc.speaking })) : ch + t('rpc.quiet');
   }
-  else if (rc) { cls = 'ok'; txt = 'Conectado a Discord. Entra en un canal de voz para detectar quién habla.'; }
-  else if (rpc && rpc.configured) txt = rpc.status + ' · mientras tanto se usa el volumen, que falla si Discord reproduce música.';
-  else txt = 'Detección por volumen, poco fiable si Discord reproduce música. Para detectar la voz de verdad, ejecuta configurar-discord.bat en el PC (instrucciones en LEEME-DISCORD.txt).';
+  else if (rc) { cls = 'ok'; txt = t('rpc.noChannel'); }
+  else if (rpc && rpc.configured) txt = t('rpc.fallback', { status:rpcStatus(rpc) });
+  else txt = t('rpc.setup');
   if (el.textContent !== txt) el.textContent = txt;
   el.className = 'hint rpc ' + cls;
   return rc;
@@ -617,20 +628,20 @@ function paintRpc(rpc) {
 function paintDuck(ducking, voice, rpc) {
   const d = prefs.duck, b = $('#duckBtn');
   b.classList.toggle('on', d.enabled); b.classList.toggle('act', d.enabled && !!ducking); b.setAttribute('aria-pressed', d.enabled);
-  b.querySelector('.t').textContent = d.enabled && ducking ? 'Música bajada' : 'Bajar música al hablar';
+  b.querySelector('.t').textContent = d.enabled && ducking ? t('duck.active') : t('duck.btn');
   const rc = paintRpc(rpc), meterUi = d.enabled && !rc;   // con Discord conectado no hace falta el umbral
   $('#duckRow').hidden = !d.enabled; $('#voiceRow').hidden = !meterUi; $('#calBtn').hidden = !meterUi; $('#voiceHint').hidden = !meterUi;
   if (!dragDuck) { $('#duckSl b').textContent = d.level + '%'; $('#duckSl .df').style.width = (d.level / 90 * 100) + '%'; }
   const thr = d.threshold ?? 12, lvl = voice ? voice.level : 0;
-  if (!dragVoice) { $('#voiceSl b').textContent = 'Raya en ' + thr + '%'; $('#voiceSl .thm').style.left = Math.min(100, thr / VMAX * 100) + '%'; }
+  if (!dragVoice) { $('#voiceSl b').textContent = t('duck.threshold', { n:thr }); $('#voiceSl .thm').style.left = Math.min(100, thr / VMAX * 100) + '%'; }
   $('#voiceSl .lv').style.width = Math.min(100, lvl / VMAX * 100) + '%';
   $('#voiceSl').classList.toggle('over', lvl > thr);
   const cal = !!(voice && voice.calibrating), cb = $('#calBtn');
-  if (cal || Date.now() >= calLock) { cb.classList.toggle('busy', cal); cb.querySelector('.t').textContent = cal ? 'Midiendo… no hables' : 'Medir silencio'; }
+  if (cal || Date.now() >= calLock) { cb.classList.toggle('busy', cal); cb.querySelector('.t').textContent = cal ? t('duck.measuring') : t('duck.measure'); }
 }
 let dragDuck = false, duckSendT = 0, dragVoice = false, voiceSendT = 0, calLock = 0;
 $('#calBtn').addEventListener('click', () => {
-  calLock = Date.now() + 1500; $('#calBtn').classList.add('busy'); $('#calBtn .t').textContent = 'Midiendo… no hables';
+  calLock = Date.now() + 1500; $('#calBtn').classList.add('busy'); $('#calBtn .t').textContent = t('duck.measuring');
   post('/api/duck', { calibrate:true });
 });
 (() => {
@@ -638,7 +649,7 @@ $('#calBtn').addEventListener('click', () => {
   const set = (e, push) => {
     const r = sl.getBoundingClientRect(), v = Math.max(1, Math.round(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * VMAX));
     prefs.duck.threshold = v; lockPrefs = Date.now() + 900;
-    $('#voiceSl b').textContent = 'Raya en ' + v + '%'; $('#voiceSl .thm').style.left = (v / VMAX * 100) + '%';
+    $('#voiceSl b').textContent = t('duck.threshold', { n:v }); $('#voiceSl .thm').style.left = (v / VMAX * 100) + '%';
     if (push && Date.now() - voiceSendT > 120) { voiceSendT = Date.now(); post('/api/duck', { threshold:v }); }
   };
   sl.addEventListener('pointerdown', e => { sl.setPointerCapture(e.pointerId); dragVoice = true; sl.classList.add('drag'); set(e, true); });
@@ -662,7 +673,6 @@ $('#duckBtn').addEventListener('click', () => {
   const end = () => { if (!dragDuck) return; dragDuck = false; sl.classList.remove('drag'); post('/api/duck', { level:prefs.duck.level }); };
   sl.addEventListener('pointerup', end); sl.addEventListener('pointercancel', end);
 })();
-const EMPTY_TXT = 'No suena nada ahora mismo. Cuando abras una app con sonido, aparecerá como un canal nuevo.';
 function setPref(name, key, val) {
   const list = prefs[key], i = list.indexOf(name);
   if (val && i < 0) list.push(name); else if (!val && i >= 0) list.splice(i, 1);
@@ -673,8 +683,8 @@ function setPref(name, key, val) {
 function paintEdit(el, id) {
   const pinned = prefs.pinned.includes(id), hidden = prefs.hidden.includes(id);
   const p = el.querySelector('.pinb'), h = el.querySelector('.hideb');
-  p.classList.toggle('on', pinned); p.querySelector('.tx').textContent = pinned ? 'Fijado' : 'Fijar';
-  h.classList.toggle('on', hidden); h.querySelector('.tx').textContent = hidden ? 'Oculto' : 'Ocultar';
+  p.classList.toggle('on', pinned); p.querySelector('.tx').textContent = pinned ? t('ch.pinned') : t('ch.pin');
+  h.classList.toggle('on', hidden); h.querySelector('.tx').textContent = hidden ? t('ch.hidden') : t('ch.hide');
   const svg = hidden ? ICON.eye : ICON.eyeoff;
   if (h.dataset.i !== svg) { h.querySelector('.c').innerHTML = svg; h.dataset.i = svg; }
   el.classList.toggle('ishidden', hidden);
@@ -683,7 +693,7 @@ function paintEdit(el, id) {
 }
 function paintMuteAll(on) {
   const b = $('#muteAll'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
-  b.querySelector('.t').textContent = on ? 'Restaurar sonido' : 'Silenciar todo';
+  b.querySelector('.t').textContent = on ? t('act.restore') : t('act.muteAll');
 }
 $('#muteAll').addEventListener('click', () => {
   const on = !$('#muteAll').classList.contains('on');
@@ -692,7 +702,7 @@ $('#muteAll').addEventListener('click', () => {
 $('#editBtn').addEventListener('click', () => {
   editing = !editing;
   const b = $('#editBtn'); b.classList.toggle('on', editing); b.setAttribute('aria-pressed', editing);
-  b.querySelector('.t').textContent = editing ? 'Listo' : 'Editar canales';
+  b.querySelector('.t').textContent = editing ? t('act.done') : t('act.edit');
   document.body.classList.toggle('editing', editing);
   $('#hint').hidden = !editing;
   if (lastSnap) apply(lastSnap);
@@ -706,17 +716,16 @@ function apply(s) {
   renderMedia(s.media);
   renderOutputs(s.outputs || []);
   if (s.no_output) removeChannel('master');
-  else upsert($('#masterbox'), 'master', 'master', 'General', devInfo(s.master.device || '').label, s.master, 0);
+  else upsert($('#masterbox'), 'master', 'master', t('ch.master'), devInfo(s.master.device || '').label, s.master, 0);
   const rail = $('#rail'), order = [], keep = new Set(['master']);
-  if (s.mic) { keep.add('mic'); order.push(upsert(rail, 'mic', 'mic', 'Micro', '', s.mic)); }
+  if (s.mic) { keep.add('mic'); order.push(upsert(rail, 'mic', 'mic', t('ch.mic'), '', s.mic)); }
   const hid = new Set(prefs.hidden), pin = new Set(prefs.pinned);
   const apps = s.apps.filter(a => editing || !hid.has(a.name)).sort((a, b) => pin.has(b.name) - pin.has(a.name));  // fijadas primero
   apps.forEach(a => { keep.add(a.name); const el = upsert(rail, a.name, 'app', pretty(a.name), '', a); paintEdit(el, a.name); order.push(el); });
   for (const id of [...chans.keys()]) if (!keep.has(id)) removeChannel(id);
   order.forEach((el, i) => { if (rail.children[i] !== el) rail.insertBefore(el, rail.children[i] || null); });
   const emp = $('#empty'); emp.hidden = apps.length > 0 && !s.no_output;
-  emp.textContent = s.no_output ? 'No hay ninguna salida de audio activa. Enciende los auriculares o conecta unos altavoces y volverá solo.'
-    : s.apps.length ? 'Todas las apps con sonido están ocultas. Pulsa «Editar canales» para volver a mostrarlas.' : EMPTY_TXT;
+  emp.textContent = s.no_output ? t('empty.noOutput') : s.apps.length ? t('empty.hidden') : t('empty.default');
   syncDots(rail, order);
 }
 
@@ -733,7 +742,7 @@ function syncDots(rail, order) {
   dotOf.forEach((d, el) => io.unobserve(el)); dotOf.clear(); box.innerHTML = '';
   order.forEach(el => {
     const d = document.createElement('button');
-    d.setAttribute('aria-label', 'Ir al canal ' + el.querySelector('.nm').textContent);
+    d.setAttribute('aria-label', t('ch.goto', { name:el.querySelector('.nm').textContent }));
     d.addEventListener('click', () => el.scrollIntoView({ behavior:'smooth', inline:'start', block:'nearest' }));
     box.appendChild(d); dotOf.set(el, d); io.observe(el);
   });
@@ -747,9 +756,9 @@ let es = null, lastSeen = 0, pollT = null, sseOk = false;
 function online(ok) {
   offline = !ok;
   $('#dot').classList.toggle('off', !ok); $('#status').classList.toggle('off', !ok);
-  $('#st').textContent = ok ? 'En línea' : 'Reconectando…';
+  $('#st').textContent = ok ? t('conn.online') : t('conn.reconnecting');
 }
-window.addEventListener('error', e => { $('#st').textContent = 'Error: ' + e.message; });
+window.addEventListener('error', e => { $('#st').textContent = t('conn.error', { msg:e.message }); });
 function startPolling() {
   if (pollT) return;
   pollT = setInterval(async () => {

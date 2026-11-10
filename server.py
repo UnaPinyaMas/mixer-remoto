@@ -1,7 +1,11 @@
 """Mixer remoto: controla el audio de Windows (salida, apps, micro y música) desde el móvil.
 
-Todo es gratuito y de código abierto: Flask + waitress (servidor), pycaw (audio de Windows),
+Usa solo librerías gratuitas y de código abierto: Flask + waitress (servidor), pycaw (audio de Windows),
 winrt (controles multimedia), Pillow (iconos), zeroconf (mixer.local).
+
+EN: Remote mixer: control Windows audio (output, per-app volume, mic and music) from your phone.
+Built only on free, open-source libraries: Flask + waitress (server), pycaw (Windows audio), winrt (media controls),
+Pillow (icons), zeroconf (mixer.local). Code comments are mostly in Spanish.
 """
 import asyncio
 import hashlib
@@ -19,6 +23,7 @@ import comtypes
 import psutil
 import discord_rpc
 from comtypes import CLSCTX_ALL
+from mixer_i18n import tr
 from flask import Flask, Response, abort, jsonify, request, send_file, send_from_directory
 from pycaw.constants import DEVICE_STATE, EDataFlow, ERole
 from pycaw.pycaw import (
@@ -95,7 +100,7 @@ def _dev_loop():
             try:
                 _do_refresh()
             except Exception as e:
-                print("dispositivos:", e)
+                print(tr("dispositivos:", "devices:"), e)
 
 
 def _do_refresh():
@@ -227,7 +232,7 @@ def snapshot():
     snap["media"] = media_state
     snap["prefs"] = json.loads(json.dumps(prefs))
     snap["ducking"] = duck_active
-    snap["rpc"] = {k: discord_rpc.state[k] for k in ("configured", "connected", "channel", "channel_name", "speaking", "status")}
+    snap["rpc"] = {k: discord_rpc.state[k] for k in ("configured", "connected", "channel", "channel_name", "speaking", "code", "detail", "status")}
     snap["voice"] = {"level": min(150, int(round(duck_level * 100))), "threshold": prefs["duck"]["threshold"],
                      "calibrating": time.time() < _calib_until}
     snap["mute_all"] = _saved_mutes is not None
@@ -476,7 +481,7 @@ def duck_loop():
                 duck_active = now_active
                 wake.set()
         except Exception as e:
-            print("ducking:", e)
+            print(tr("bajar música:", "ducking:"), e)
             time.sleep(1)
 
 
@@ -750,7 +755,7 @@ def extract_icon(exe, out, size=128):
         Image.frombuffer("RGBA", (size, size), bytes(raw), "raw", "BGRA", 0, 1).save(out, "PNG")
         return True
     except Exception as e:
-        print("icono:", exe, e)
+        print(tr("icono:", "icon:"), exe, e)
         return False
 
 
@@ -768,7 +773,7 @@ def api_icon(name):
 
 
 # ──────────────────── Seguridad: PIN ────────────────────
-# El PIN se crea en el PC con configurar-pin.bat (se guarda solo su "huella", nunca el PIN). Sin pin.json, el
+# El PIN se crea en el PC con setup-pin.bat (se guarda solo su "huella", nunca el PIN). Sin pin.json, el
 # acceso es libre. Con PIN: cada dispositivo lo introduce una vez y recibe una cookie firmada de 90 días.
 PIN_FILE = os.environ.get("MIXER_PIN_FILE", os.path.join(BASE, "pin.json"))
 COOKIE = "mixer_auth"
@@ -849,12 +854,13 @@ def guard():
     if cfg is None or is_loopback():
         return None
     p = request.path
-    if p in ("/", "/api/login", "/manifest.webmanifest") or p.startswith("/static/icon-"):
+    # públicas: la pantalla del PIN necesita sus iconos y su diccionario de textos
+    if p in ("/", "/api/login", "/manifest.webmanifest", "/static/i18n.js") or p.startswith("/static/icon-"):
         return None
     if authed(cfg):
         return None
     if p.startswith("/api/"):
-        return jsonify(error="PIN necesario"), 401
+        return jsonify(code="auth", error="PIN required"), 401
     abort(401)
 
 
@@ -864,11 +870,11 @@ def api_login():
     if cfg is None or is_loopback():
         return jsonify(ok=True)
     if cfg.get("invalid"):
-        return jsonify(error="El archivo del PIN está dañado: vuelve a ejecutar configurar-pin.bat"), 500
+        return jsonify(code="broken", error="The PIN file is damaged: run setup-pin.bat again"), 500
     ip = request.remote_addr
     wait = lock_wait(ip)
     if wait:
-        return jsonify(error="Demasiados intentos", wait=wait), 429
+        return jsonify(code="locked", error="Too many attempts", wait=wait), 429
     pin = str((request.get_json(force=True) or {}).get("pin", ""))[:64]
     digest = hashlib.scrypt(pin.encode(), salt=cfg["_salt"], n=2 ** 14, r=8, p=1, dklen=32)
     if hmac.compare_digest(digest, cfg["_hash"]):
@@ -882,7 +888,7 @@ def api_login():
         e["strikes"] += 1
         e["n"] = 0
         e["until"] = time.time() + min(3600, 300 * 2 ** (e["strikes"] - 1))
-    return jsonify(error="PIN incorrecto", wait=lock_wait(ip), left=MAX_FAILS - e["n"]), 401
+    return jsonify(code="bad_pin", error="Wrong PIN", wait=lock_wait(ip), left=MAX_FAILS - e["n"]), 401
 
 
 @app.route("/api/auth")
@@ -948,7 +954,8 @@ def advertise():
                     allow_name_change=True,
                 )
                 current = ip
-                print(f"  Anunciado como http://{HOSTNAME}.local:{PORT}  ({ip})")
+                print(tr(f"  Anunciado como http://{HOSTNAME}.local:{PORT}  ({ip})",
+                         f"  Announced as http://{HOSTNAME}.local:{PORT}  ({ip})"))
             except Exception as e:
                 print("  mDNS:", e)
                 current = None
@@ -958,8 +965,8 @@ def advertise():
 if __name__ == "__main__":
     from waitress import serve
 
-    print(f"\n  En el iPhone abre:  http://{HOSTNAME}.local:{PORT}")
-    print(f"  (o por IP:          http://{local_ip()}:{PORT})\n")
+    print(tr(f"\n  En el móvil abre:  http://{HOSTNAME}.local:{PORT}", f"\n  Open on your phone:  http://{HOSTNAME}.local:{PORT}"))
+    print(tr(f"  (o por IP:         http://{local_ip()}:{PORT})\n", f"  (or by IP:           http://{local_ip()}:{PORT})\n"))
     threading.Thread(target=engine, daemon=True).start()
     threading.Thread(target=duck_loop, daemon=True).start()
     discord_rpc.on_change = wake.set

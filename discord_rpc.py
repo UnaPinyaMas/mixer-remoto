@@ -3,6 +3,10 @@
 Discord escucha en una tubería local (\\\\.\\pipe\\discord-ipc-N). Con una aplicación de desarrollador propia
 (gratis) y un permiso que se acepta una vez en Discord, avisa de SPEAKING_START / SPEAKING_STOP.
 Nada sale del PC salvo el canje del permiso con discord.com.
+
+EN: local connection to Discord (RPC) to know WHO IS TALKING without looking at volume levels.
+Discord listens on a local pipe. With your own (free) developer application and a permission you accept once
+in Discord, it reports SPEAKING_START / SPEAKING_STOP. Nothing leaves the PC except the token exchange with discord.com.
 """
 import ctypes
 import json
@@ -16,6 +20,8 @@ import urllib.parse
 import urllib.request
 import uuid
 
+from mixer_i18n import tr
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.path.join(BASE, "discord_rpc.json")
 REDIRECT = "http://localhost"
@@ -23,8 +29,16 @@ SCOPES = ["rpc", "rpc.voice.read"]
 UA = "DiscordBot (mixer-remoto, 1.0)"
 HEARTBEAT_S = 3.0      # cada cuánto se comprueba en qué canal de voz estás
 
+# "code" y "detail" los traduce la web; "status" es el mismo texto ya traducido, para registros y otros usos
 state = {"configured": False, "connected": False, "channel": False, "channel_name": "", "speaking": 0,
-         "status": "Sin configurar"}
+         "code": "unconfigured", "detail": "", "status": ""}
+STATUS = {
+    "unconfigured": ("Sin configurar: ejecuta setup-discord.bat", "Not set up: run setup-discord.bat"),
+    "connecting": ("Conectando con Discord…", "Connecting to Discord…"),
+    "authorize": ("Acepta el permiso en la ventana de Discord…", "Accept the permission in the Discord window…"),
+    "connected": ("Conectado a Discord", "Connected to Discord"),
+    "error": ("Sin conexión con Discord: {detail}", "Can't reach Discord: {detail}"),
+}
 LOG = os.path.join(BASE, "rpc.log")
 
 
@@ -40,6 +54,10 @@ def log(msg):
 on_change = lambda: None          # el servidor lo sustituye para refrescar la interfaz
 _speaking = set()
 _self_id = None
+
+
+def set_status(code, detail=""):
+    _set(code=code, detail=detail, status=tr(*STATUS[code]).format(detail=detail))
 
 
 def _set(**kw):
@@ -77,7 +95,7 @@ class Pipe:
                 return
             except OSError as e:
                 last = e
-        raise ConnectionError("Discord no está abierto") from last
+        raise ConnectionError(tr("Discord no está abierto", "Discord isn't open")) from last
 
     def send(self, op, payload):
         data = json.dumps(payload).encode()
@@ -91,7 +109,7 @@ class Pipe:
         ok = ctypes.windll.kernel32.PeekNamedPipe(
             ctypes.c_void_p(msvcrt.get_osfhandle(self.f.fileno())), None, 0, None, ctypes.byref(avail), None)
         if not ok:
-            raise EOFError("Discord cerró la conexión")
+            raise EOFError(tr("Discord cerró la conexión", "Discord closed the connection"))
         return avail.value
 
     def _read(self, n, idle=None):
@@ -105,7 +123,7 @@ class Pipe:
                 continue
             chunk = self.f.read(min(avail, n - len(buf)))
             if not chunk:
-                raise EOFError("Discord cerró la conexión")
+                raise EOFError(tr("Discord cerró la conexión", "Discord closed the connection"))
             buf += chunk
         return buf
 
@@ -146,14 +164,15 @@ class Session:
         if op == 3:                                     # PING -> PONG
             self.pipe.send(4, msg)
         elif op == 2:
-            raise EOFError("Discord cerró la conexión")
+            raise EOFError(tr("Discord cerró la conexión", "Discord closed the connection"))
         elif msg.get("evt") and msg.get("cmd") == "DISPATCH":
             self._event(msg)
         elif str(msg.get("nonce", "")).startswith("hb-") and msg.get("cmd") == "GET_SELECTED_VOICE_CHANNEL":
             # respuesta de la revisión periódica: si Discord dice otro canal, hay que cambiar
             cid = (msg.get("data") or {}).get("id")
             if cid != self.channel:
-                log(f"revisión periódica: Discord dice canal {cid}, yo escuchaba {self.channel}")
+                log(tr(f"revisión periódica: Discord dice canal {cid}, yo escuchaba {self.channel}",
+                       f"periodic check: Discord says channel {cid}, I was listening to {self.channel}"))
                 self.pending_channel = (True, cid)
 
     def cmd(self, name, args=None, evt=None):
@@ -167,7 +186,7 @@ class Session:
             if resp.get("nonce") == nonce:
                 if resp.get("evt") == "ERROR":
                     d = resp.get("data") or {}
-                    raise RuntimeError(f"{d.get('message', 'error')} (código {d.get('code')})")
+                    raise RuntimeError(f"{d.get('message', 'error')} ({tr('código', 'code')} {d.get('code')})")
                 return resp
             self._frame(op, resp)
 
@@ -175,7 +194,8 @@ class Session:
         global _self_id
         evt, d = msg.get("evt"), msg.get("data") or {}
         if evt == "VOICE_CHANNEL_SELECT":
-            log(f"aviso de Discord: cambio de canal -> {d.get('channel_id')}")
+            log(tr(f"aviso de Discord: cambio de canal -> {d.get('channel_id')}",
+                   f"Discord notice: channel change -> {d.get('channel_id')}"))
             self.pending_channel = (True, d.get("channel_id"))
         elif evt == "SPEAKING_START" and d.get("user_id") != _self_id:
             _speaking.add(d.get("user_id")); _set(speaking=len(_speaking))
@@ -187,7 +207,7 @@ class Session:
         self.pipe.send(0, {"v": 1, "client_id": self.cfg["client_id"]})
         op, resp = self._recv()
         if op == 2 or resp.get("evt") == "ERROR" or resp.get("code"):
-            raise RuntimeError(resp.get("message") or "Discord rechazó el ID de aplicación")
+            raise RuntimeError(resp.get("message") or tr("Discord rechazó el ID de aplicación", "Discord rejected the application ID"))
 
     def authenticate(self):
         global _self_id
@@ -209,7 +229,7 @@ class Session:
             except RuntimeError:
                 cfg.pop("access_token", None)
         # permiso nuevo: Discord enseña una ventana para aceptar (solo la primera vez)
-        _set(status="Acepta el permiso en la ventana de Discord…")
+        set_status("authorize")
         resp = self.cmd("AUTHORIZE", {"client_id": cfg["client_id"], "scopes": SCOPES})
         _token_request(cfg, {"grant_type": "authorization_code", "code": resp["data"]["code"]})
         resp = self.cmd("AUTHENTICATE", {"access_token": cfg["access_token"]})
@@ -228,7 +248,8 @@ class Session:
                 try:
                     self.cmd("UNSUBSCRIBE", {"channel_id": self.channel}, evt)
                 except Exception as e:
-                    log(f"no se pudo dejar de escuchar el canal anterior ({evt}): {e}")
+                    log(tr(f"no se pudo dejar de escuchar el canal anterior ({evt}): {e}",
+                           f"couldn't stop listening to the previous channel ({evt}): {e}"))
         self.channel = None
         _speaking.clear()
         _set(channel=False, channel_name="", speaking=0)
@@ -236,9 +257,9 @@ class Session:
             for evt in ("SPEAKING_START", "SPEAKING_STOP"):
                 self.cmd("SUBSCRIBE", {"channel_id": ch}, evt)
         self.channel = ch
-        log(f"escuchando el canal {ch} ({name})" if ch else "sin canal de voz")
-        _set(channel=bool(ch), channel_name=name, speaking=0,
-             status="Conectado a Discord" if ch else "Conectado a Discord. Entra en un canal de voz")
+        log(tr(f"escuchando el canal {ch} ({name})", f"listening to channel {ch} ({name})") if ch
+            else tr("sin canal de voz", "no voice channel"))
+        _set(channel=bool(ch), channel_name=name, speaking=0)
 
     def _recv(self):
         return self.pipe.recv(self._idle)
@@ -253,9 +274,10 @@ class Session:
 
     def run(self):
         self.handshake()
-        _set(status="Conectando con Discord…")
+        set_status("connecting")
         self.authenticate()
-        _set(connected=True, status="Conectado a Discord")
+        _set(connected=True)
+        set_status("connected")
         self.cmd("SUBSCRIBE", {}, "VOICE_CHANNEL_SELECT")
         self.alive = True
         self._hb_t = time.time()
@@ -277,8 +299,8 @@ def run():
     while True:
         cfg = load_cfg()
         if not cfg.get("client_id") or not cfg.get("client_secret"):
-            _set(configured=False, connected=False, channel=False, speaking=0,
-                 status="Sin configurar: ejecuta configurar-discord.bat")
+            _set(configured=False, connected=False, channel=False, speaking=0)
+            set_status("unconfigured")
             time.sleep(5)
             continue
         _set(configured=True)
@@ -287,9 +309,10 @@ def run():
             sess = Session(cfg)
             sess.run()
         except Exception as e:
-            log(f"conexión perdida: {e}")
+            log(tr(f"conexión perdida: {e}", f"connection lost: {e}"))
             _speaking.clear()
-            _set(connected=False, channel=False, channel_name="", speaking=0, status=f"Sin conexión con Discord: {e}")
+            _set(connected=False, channel=False, channel_name="", speaking=0)
+            set_status("error", str(e))
         finally:
             if sess:
                 sess.close()

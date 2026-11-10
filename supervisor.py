@@ -1,4 +1,7 @@
-"""Vigilante del Mixer: arranca el servidor y lo relanza si se cae o se queda colgado."""
+"""Vigilante del Mixer: arranca el servidor y lo relanza si se cae o se queda colgado.
+
+EN: Mixer watchdog: starts the server and restarts it if it crashes or hangs.
+"""
 import datetime
 import os
 import socket
@@ -9,6 +12,8 @@ import urllib.error
 import urllib.request
 
 import psutil
+
+from mixer_i18n import tr
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 SERVER = os.path.join(BASE, "server.py")
@@ -69,12 +74,13 @@ def main():
     kill_stale()
     time.sleep(1)
     child, started, fails = start(), time.time(), 0
-    log("vigilante iniciado; servidor arrancado")
+    log(tr("vigilante iniciado; servidor arrancado", "watchdog started; server launched"))
     while True:
         time.sleep(5)
         if child.poll() is not None:
             quick = time.time() - started < 20      # si se cae nada más arrancar, espera más
-            log(f"el servidor se cerró (código {child.returncode}); reinicio")
+            log(tr(f"el servidor se cerró (código {child.returncode}); reinicio",
+                   f"the server exited (code {child.returncode}); restarting"))
             time.sleep(8 if quick else 2)
             kill_stale()
             child, started, fails = start(), time.time(), 0
@@ -86,7 +92,7 @@ def main():
         else:
             fails += 1
             if fails >= 3:                          # ~15 s sin responder: colgado
-                log("el servidor no responde; reinicio")
+                log(tr("el servidor no responde; reinicio", "the server is not responding; restarting"))
                 child.kill()
                 child.wait()
                 kill_stale()

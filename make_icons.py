@@ -36,4 +36,6 @@ def draw():
 
 for size in (180, 192, 512):
     draw().resize((size, size), Image.LANCZOS).save(os.path.join(OUT, f"icon-{size}.png"))
-print("Iconos creados en", OUT)
+from mixer_i18n import tr  # noqa: E402
+
+print(tr("Iconos creados en", "Icons created in"), OUT)

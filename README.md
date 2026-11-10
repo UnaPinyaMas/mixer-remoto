@@ -1,84 +1,85 @@
 <div align="center">
 
-# 🎚️ Mixer remoto
+# 🎚️ Remote Mixer
 
-**Controla el audio de tu PC con Windows desde el móvil.**
-Volumen de cada aplicación, salida de audio, música y micrófono, con una interfaz de mesa de mezclas.
+**Control your Windows PC's audio from your phone.**
+Per-application volume, audio output, music and microphone, with a mixing-console interface.
 
-![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4?logo=windows&logoColor=white)
+🇬🇧 **English** · 🇪🇸 [Español](README.es.md)
+
+![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4?logo=windows&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)
-![Licencia](https://img.shields.io/badge/licencia-PolyForm%20Noncommercial-orange)
-![Coste](https://img.shields.io/badge/coste-0%20%E2%82%AC-brightgreen)
+![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-orange)
+![Cost](https://img.shields.io/badge/cost-%240-brightgreen)
 
-<img src="docs/hero.png" alt="El Mixer en el móvil: tema claro, tema oscuro y modo edición" width="900">
+<img src="docs/en/hero.png" alt="The Mixer on a phone: light theme, dark theme and edit mode" width="900">
 
 </div>
-
-> **English:** a self-hosted web app (Flask + WASAPI) that turns your phone into a per-application audio mixer for a Windows PC — faders, LED meters, output switching, media keys, mic control, and "duck the music when someone talks on Discord". UI in Spanish. No cloud, no accounts, no cost. Free for non-commercial use ([PolyForm Noncommercial 1.0.0](LICENSE)); commercial use needs the author's permission.
 
 ---
 
-## ¿Qué es esto?
+## What is this?
 
-Un pequeño servidor que corre en tu PC con Windows y una página web que abres desde el móvil (en la misma WiFi). La añades a la pantalla de inicio y se comporta como una app: sube y baja el volumen de **Spotify, Discord, el navegador o ese juego**, cambia de auriculares a altavoces, pausa la música o silencia el micro, sin levantarte del sofá.
+A small server that runs on your Windows PC plus a web page you open from your phone (on the same WiFi). Add it to your home screen and it behaves like an app: turn **Spotify, Discord, your browser or that game** up or down, switch from headphones to speakers, pause the music or mute the mic — without getting off the couch.
 
-No hay nube, ni cuentas, ni nada de pago. Todo pasa entre tu móvil y tu PC.
+There is no cloud, no accounts, nothing to pay. Everything happens between your phone and your PC.
 
-## ✨ Características
+## ✨ Features
 
-**Mezcla**
-- 🎛️ **Un fader por aplicación**, más volumen general y micrófono. Los faders son grandes y se agarran con el pulgar.
-- 📊 **Medidores de LEDs en tiempo real** (verde, ámbar y rojo) con marca de pico, para ver qué app hace ruido.
-- 🔇 Silenciar cada canal, o **«Silenciar todo»** con un toque y vuelta exacta a como estaba.
-- 🖼️ **Iconos reales** de cada programa; el color de cada canal sale de su logo.
+**Mixing**
+- 🎛️ **One fader per application**, plus master volume and microphone. The faders are big and easy to grab with your thumb.
+- 📊 **Real-time LED meters** (green, amber and red) with a peak marker, to see which app is making noise.
+- 🔇 Mute each channel, or **“Mute all”** with one tap and an exact return to how it was.
+- 🖼️ **Real icons** for each program; each channel's colour comes from its logo.
 
 **Control**
-- 🎧 **Cambio de salida de audio** (auriculares / altavoces / monitor) con un toque.
-- ⏯️ **Música**: título, artista, pausa, siguiente y anterior de lo que esté sonando (Spotify, YouTube en el navegador…).
-- 📌 **Fijar u ocultar canales** para dejar la mesa limpia.
+- 🎧 **Audio output switching** (headphones / speakers / monitor) with one tap.
+- ⏯️ **Music**: title, artist, pause, next and previous for whatever is playing (Spotify, YouTube in the browser…).
+- 📌 **Pin or hide channels** to keep the console tidy.
 
-**Inteligente**
-- 🗣️ **Bajar música al hablar**: cuando alguien habla en tu canal de voz de Discord, la música baja sola y vuelve cuando callan. Usa la conexión local de Discord (RPC), así que **no se confunde con música ni avisos**.
+**Smart**
+- 🗣️ **Lower music when talking**: when someone talks in your Discord voice channel, the music goes down by itself and comes back when they stop. It uses Discord's local connection (RPC), so it **isn't fooled by music or notification sounds**.
 
-**Hecho para usarse**
-- 🔒 **PIN** que se pide una sola vez por dispositivo y se recuerda 90 días.
-- 📱 **App de pantalla de inicio** con icono propio y sin barra de Safari. Tema claro y oscuro automático.
-- 🔄 **Arranca con Windows**, se reinicia solo si falla y se encuentra con el nombre `mixer.local` (sin recordar la IP).
-- ⚡ **Tiempo real**: lo que cambias en el PC aparece al instante en el móvil.
+**Made to be used**
+- 🌍 **English and Spanish**: the interface follows your browser's language and has an **ES · EN** button.
+- 🔒 **PIN** asked once per device and remembered for 90 days.
+- 📱 **Home-screen app** with its own icon and no Safari bar. Automatic light and dark theme.
+- 🔄 **Starts with Windows**, restarts itself if it fails, and is found by the name `mixer.local` (no need to remember the IP).
+- ⚡ **Real time**: what you change on the PC shows up instantly on your phone.
 
 <div align="center">
 
-| Pantalla del PIN | Pantalla ancha (tablet / ordenador) |
+| PIN screen | Wide screen (tablet / computer) |
 |:---:|:---:|
-| <img src="docs/screenshot-pin.png" alt="Pantalla del PIN" width="260"> | <img src="docs/screenshot-wide.png" alt="Interfaz en pantalla ancha" width="560"> |
+| <img src="docs/en/screenshot-pin.png" alt="PIN screen" width="260"> | <img src="docs/en/screenshot-wide.png" alt="Interface on a wide screen" width="560"> |
 
 </div>
 
-## 🧩 Cómo funciona
+## 🧩 How it works
 
 ```
- Móvil (Safari)              PC con Windows
+ Phone (Safari)              Windows PC
 ┌──────────────┐  WiFi   ┌────────────────────────────────────────────┐
-│  Interfaz    │◄───────►│  Flask + waitress  ──►  pycaw  ──►  WASAPI │  volumen, medidores,
-│  web (PWA)   │  HTTP   │        │                                   │  salida de audio
-└──────────────┘  + SSE  │        ├──►  Windows Media Control         │  música
-                         │        └──►  Discord RPC (tubería local)   │  quién habla
+│  Web         │◄───────►│  Flask + waitress  ──►  pycaw  ──►  WASAPI │  volume, meters,
+│  interface   │  HTTP   │        │                                   │  audio output
+│  (PWA)       │  + SSE  │        ├──►  Windows Media Control         │  music
+└──────────────┘         │        └──►  Discord RPC (local pipe)      │  who is talking
                          └────────────────────────────────────────────┘
 ```
 
-- El servidor lee el estado del audio unas 10 veces por segundo y lo empuja al móvil con **Server-Sent Events**. Si el navegador no los soporta, cae a consultas rápidas.
-- Las órdenes (volumen, silencio…) viajan como JSON y se aplican con **WASAPI** a través de `pycaw`.
-- `zeroconf` anuncia el nombre **`mixer.local`** en tu red.
-- Un **vigilante** (`supervisor.py`) arranca el servidor y lo reinicia si se cae o se cuelga.
+- The server reads the audio state about 10 times per second and pushes it to the phone with **Server-Sent Events**. If the browser doesn't support them, it falls back to fast polling.
+- Commands (volume, mute…) travel as JSON and are applied with **WASAPI** through `pycaw`.
+- `zeroconf` announces the name **`mixer.local`** on your network.
+- A **watchdog** (`supervisor.py`) starts the server and restarts it if it crashes or hangs.
 
-## 📋 Requisitos
+## 📋 Requirements
 
-- **Windows 10 u 11** (el audio por aplicación depende de Windows).
-- **Python 3.10 o superior**.
-- El móvil y el PC en la **misma red WiFi**.
-- Para «Bajar música al hablar»: **Discord de escritorio** (no vale la versión web).
+- **Windows 10 or 11** (per-app audio depends on Windows).
+- **Python 3.10 or newer**.
+- Your phone and PC on the **same WiFi network**.
+- For “Lower music when talking”: the **Discord desktop app** (the web version doesn't work).
 
-## 🚀 Instalación
+## 🚀 Installation
 
 ```powershell
 git clone https://github.com/UnaPinyaMas/mixer-remoto.git
@@ -87,112 +88,124 @@ pip install -r requirements.txt
 python server.py
 ```
 
-Al arrancar, el servidor escribe las direcciones para entrar:
+On start, the server prints the addresses to open:
 
 ```
-En el iPhone abre:  http://mixer.local:8080
-(o por IP:          http://192.168.x.x:8080)
+Open on your phone:  http://mixer.local:8080
+(or by IP:           http://192.168.x.x:8080)
 ```
 
-La primera vez, el cortafuegos de Windows preguntará si permites el acceso: **acepta** (en red privada).
+The first time, the Windows firewall will ask whether to allow access: **accept** (on private networks).
 
-### Que arranque solo con Windows
+### Start automatically with Windows
 
-Haz doble clic en **`instalar-autoarranque.bat`**. Crea un acceso en la carpeta de Inicio que arranca el vigilante sin ventana, y lo lanza ahora mismo.
+Double-click **`install-autostart.bat`**. It creates a Startup shortcut that launches the watchdog with no window, and starts it right now.
 
-## 📱 Usarlo desde el móvil
+## 📱 Using it from your phone
 
-1. Conecta el móvil a la misma WiFi que el PC.
-2. Abre `http://mixer.local:8080` en Safari (si no abre, usa la IP que muestra el servidor).
-3. **Compartir → Añadir a pantalla de inicio.** Ya tienes la app con su icono.
+1. Connect the phone to the same WiFi as the PC.
+2. Open `http://mixer.local:8080` in Safari (if it doesn't open, use the IP the server prints).
+3. **Share → Add to Home Screen.** You now have the app with its icon.
 
-> ⚠️ `mixer.local` solo funciona **dentro de la misma red**. Con datos móviles o desde otra WiFi no llega al PC (para eso haría falta algo como [Tailscale](https://tailscale.com)).
+> ⚠️ `mixer.local` only works **inside the same network**. On mobile data or another WiFi it can't reach the PC (for that you would need something like [Tailscale](https://tailscale.com)).
 
-## 🔒 PIN de acceso
+## 🔒 Access PIN
 
-Sin PIN, cualquiera de tu WiFi puede abrir el Mixer. Para protegerlo:
+Without a PIN, anyone on your WiFi can open the Mixer. To protect it:
 
 ```powershell
-.\configurar-pin.bat
+.\setup-pin.bat
 ```
 
-- Elige un PIN de 4 a 8 cifras (se guarda solo su huella, nunca el número).
-- Cada dispositivo lo pide **una vez** y lo recuerda 90 días; cada visita renueva el plazo.
-- 5 fallos seguidos bloquean 5 minutos (el doble si insiste).
-- Desde el propio PC con `http://localhost:8080` no se pide.
-- Para quitarlo, ejecuta el mismo script y déjalo vacío.
+- Choose a 4–8 digit PIN (only its hash is stored, never the number).
+- Each device asks for it **once** and remembers it for 90 days; every visit renews the period.
+- 5 wrong attempts in a row lock for 5 minutes (doubling if it keeps trying).
+- From the PC itself, using `http://localhost:8080`, it is not asked.
+- To remove it, run the same script and leave it empty.
 
-## 🗣️ Bajar música al hablar (Discord)
+## 🗣️ Lower music when talking (Discord)
 
-Pulsa **«Bajar música al hablar»** y marca, en **Editar canales**, qué apps son la *voz* y cuáles se *bajan*. Por defecto, Discord baja a Brave.
+Press **“Lower music when talking”** and, in **Edit channels**, mark which apps are the *voice* and which get *lowered*. By default, Discord lowers Brave.
 
-Para detectar **quién habla de verdad** hace falta una aplicación de desarrollador de Discord (gratis, 5 minutos): sigue **[LEEME-DISCORD.txt](LEEME-DISCORD.txt)** y ejecuta `configurar-discord.bat`. Sin ella, se usa el volumen de Discord como aproximación, que falla si en Discord suena música.
+To detect **who is really talking** you need a Discord developer application (free, 5 minutes): follow the guide **[docs/discord.en.md](docs/discord.en.md)** and run `setup-discord.bat`. Without it, Discord's volume level is used as an approximation, which fails if music plays in Discord.
 
-## 👀 Modo demo
+## 🌍 Language
 
-Para probar la interfaz sin Windows y con datos de mentira:
+The interface follows your browser's language (English or Spanish) and can be switched with the **ES · EN** button in the footer. It also accepts `?lang=es` or `?lang=en` in the address. Console messages and logs use the Windows language; force it with `MIXER_LANG=es` or `MIXER_LANG=en`.
+
+## 👀 Demo mode
+
+To try the interface without Windows and with fake data:
 
 ```powershell
-python demo/demo_server.py      # http://localhost:8090
-python demo/screenshots.py      # regenera las capturas de este README
+python demo/demo_server.py      # http://localhost:8090  (?lang=es | ?lang=en)
+python demo/screenshots.py      # regenerates the README screenshots
 ```
 
-## 🗂️ Estructura
+## 🗂️ Project layout
 
 ```
-server.py            Servidor: API, audio (WASAPI), música, seguridad y tiempo real
-supervisor.py        Vigilante: lo arranca y lo reinicia si falla
-discord_rpc.py       Conexión local con Discord para saber quién habla
-static/              Interfaz web (index.html, login.html, iconos, manifiesto PWA)
-demo/                Modo demo con datos ficticios y generador de capturas
-configurar-*.bat     Asistentes para el PIN y Discord
-instalar-autoarranque.bat   Arranque con Windows
+server.py              Server: API, audio (WASAPI), music, security and real time
+supervisor.py          Watchdog: starts it and restarts it if it fails
+discord_rpc.py         Local connection to Discord to know who is talking
+mixer_i18n.py          Language for console messages and logs
+static/                Web interface (index.html, login.html, i18n.js, icons, PWA manifest)
+demo/                  Demo mode with fake data and the screenshot generator
+docs/                  Guides and screenshots (es / en)
+setup-pin.bat          PIN wizard
+setup-discord.bat      Discord wizard
+install-autostart.bat  Start with Windows
+start.bat              Start it by hand, with a window
 ```
 
-## 🛡️ Seguridad
+> Code comments are mostly in Spanish.
 
-- Está pensado para una **red doméstica de confianza**. **No lo expongas a Internet.**
-- Con PIN: cookie firmada (`HttpOnly`, `SameSite=Lax`), intentos limitados y huella con `scrypt`.
-- Solo acepta órdenes en JSON real y solo para los nombres `localhost`, `*.local` o IPs privadas, para evitar que otra web abierta en tu navegador mande órdenes al Mixer.
-- `pin.json` y `discord_rpc.json` guardan datos sensibles y están en el `.gitignore`. No los compartas.
-- El tráfico va por **HTTP sin cifrar** dentro de tu red.
+## 🛡️ Security
 
-## ⚠️ Limitaciones conocidas
+- It is meant for a **trusted home network**. **Do not expose it to the Internet.**
+- With a PIN: signed cookie (`HttpOnly`, `SameSite=Lax`), limited attempts and an `scrypt` hash.
+- It only accepts real JSON commands, and only for the names `localhost`, `*.local` or private IPs, so that another web page open in your browser can't send commands to the Mixer.
+- `pin.json` and `discord_rpc.json` hold sensitive data and are in `.gitignore`. Don't share them.
+- Traffic is **unencrypted HTTP** inside your network.
 
-- Solo Windows.
-- Solo aparecen las apps que **ya han reproducido audio**; no se puede mover el volumen de una que no tenga sesión de audio.
-- El **widget de pantalla de bloqueo** de iOS no existe (haría falta una app nativa); no se ha hecho.
-- Safari de iPhone **no permite vibración**, así que no hay respuesta háptica.
-- La conexión RPC de Discord es una función restringida de Discord: funciona con una aplicación tuya y tu cuenta, pero Discord puede cambiarlo.
-- Con **ninguna salida de audio activa** (auriculares apagados, etc.), la mesa avisa y espera a que vuelva.
+## ⚠️ Known limitations
 
-## 🩺 Solución de problemas
+- Windows only.
+- Only apps that **have already played audio** appear; you can't move the volume of an app that has no audio session.
+- There is no iOS **lock-screen widget** (that would need a native app); it hasn't been built.
+- iPhone Safari **doesn't allow vibration**, so there is no haptic feedback.
+- Discord's RPC connection is a restricted Discord feature: it works with an application of your own and your account, but Discord may change it.
+- With **no active audio output** (headphones off, etc.), the console shows a notice and waits for it to come back.
 
-| Síntoma | Qué mirar |
+## 🩺 Troubleshooting
+
+| Symptom | What to check |
 |---|---|
-| El móvil no abre `mixer.local` | Usa la IP; comprueba misma WiFi; algunas redes aíslan los dispositivos entre sí. |
-| «Reconectando…» | El PC está apagado/en reposo o el servidor no corre (`supervisor.log`, `server.log`). |
-| «No hay ninguna salida de audio activa» | Enciende los auriculares o conecta unos altavoces. |
-| Pide el PIN otra vez | Se borraron los datos del navegador, pasaron 90 días o se cambió el PIN. |
-| La música no baja | Revisa la línea de estado de Discord bajo el botón y `rpc.log`. |
+| The phone can't open `mixer.local` | Use the IP; check same WiFi; some networks isolate devices from each other. |
+| “Reconnecting…” | The PC is off/asleep or the server isn't running (`supervisor.log`, `server.log`). |
+| “There is no active audio output” | Turn on your headphones or plug in speakers. |
+| Asks for the PIN again | Browser data was cleared, 90 days passed, or the PIN was changed. |
+| The music doesn't go down | Check the Discord status line under the button and `rpc.log`. |
 
-## 🗺️ Ideas pendientes
+More details in the [quick guide](docs/guide.en.md).
 
-- Temporizador para dormir (bajar el volumen poco a poco y pausar).
-- Preajustes de mezcla («Juego», «Noche»).
-- Tope de volumen general y nombres de canal editables.
-- Acceso desde fuera de casa con Tailscale.
+## 🗺️ Ideas for later
 
-## 📄 Licencia
+- Sleep timer (fade the volume down and pause).
+- Mix presets (“Gaming”, “Night”).
+- Master volume cap and editable channel names.
+- Access from outside your home with Tailscale.
 
-**[PolyForm Noncommercial 1.0.0](LICENSE)**: el código es público y gratuito para uso **no comercial**.
+## 📄 License
+
+**[PolyForm Noncommercial 1.0.0](LICENSE)**: the code is public and free for **non-commercial** use.
 
 | | |
 |---|---|
-| ✅ **Puedes** | Descargarlo, usarlo, estudiarlo, **modificarlo** y compartirlo (incluidas tus modificaciones) para uso personal, de aficionado, educativo, de investigación o en organizaciones sin ánimo de lucro, **manteniendo los avisos de la licencia y el nombre del autor**. |
-| ❌ **No puedes** | Venderlo, incluirlo en un producto o servicio de pago, ni usarlo con fines comerciales, **sin permiso del autor**. |
-| ✉️ **¿Uso comercial?** | Abre un [issue](https://github.com/UnaPinyaMas/mixer-remoto/issues) y lo hablamos. |
+| ✅ **You can** | Download, use, study, **modify** and share it (including your changes) for personal, hobby, educational, research or non-profit use, **keeping the license notices and the author's name**. |
+| ❌ **You can't** | Sell it, include it in a paid product or service, or use it commercially, **without the author's permission**. |
+| ✉️ **Commercial use?** | Open an [issue](https://github.com/UnaPinyaMas/mixer-remoto/issues) and let's talk. |
 
-> Al restringir el uso comercial, no es una licencia «de código abierto» en el sentido estricto de la OSI, sino de *código disponible*. Las librerías que usa el proyecto (Flask, pycaw, etc.) conservan sus propias licencias.
+> Because it restricts commercial use, it isn't an “open source” license in the strict OSI sense but a *source-available* one. The libraries the project uses (Flask, pycaw, etc.) keep their own licenses.
 >
-> Esto es una explicación en lenguaje llano; lo que vale es el texto del archivo [LICENSE](LICENSE).
+> This is a plain-language explanation; what counts is the text of the [LICENSE](LICENSE) file.

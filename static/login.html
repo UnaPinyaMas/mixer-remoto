@@ -38,7 +38,11 @@
   main { flex:1; width:100%; max-width:360px; margin:0 auto; padding:26px 18px max(26px,env(safe-area-inset-bottom)); display:flex; flex-direction:column; justify-content:center; }
   .lcd { height:74px; border-radius:14px; background:var(--groove); box-shadow:inset 0 2px 5px rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; gap:14px; }
   .lcd i { width:14px; height:14px; border-radius:50%; background:var(--ink); box-shadow:0 0 8px rgba(255,255,255,.25); animation:pop .12s ease-out; }
-  .lcd.empty::after { content:"Introduce el PIN"; color:var(--muted); font-size:19px; font-weight:600; }
+  .lcd.empty::after { content:attr(data-ph); color:var(--muted); font-size:19px; font-weight:600; }
+  .lang { margin-left:auto; display:flex; gap:4px; }
+  .lang button { border:0; border-radius:8px; padding:5px 9px; background:#2a2e35; color:#9ba0aa; font:600 13px var(--f-cond);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 2px 0 rgba(0,0,0,.55); }
+  .lang button.on { color:#ebe9e4; background:#1e2126; box-shadow:inset 0 2px 4px rgba(0,0,0,.65); }
   @keyframes pop { from { transform:scale(.4); opacity:.3; } }
   .lcd.bad { animation:shake .38s; box-shadow:inset 0 2px 5px rgba(0,0,0,.5), 0 0 0 2px var(--red); }
   @keyframes shake { 20%,60% { transform:translateX(-8px); } 40%,80% { transform:translateX(8px); } }
@@ -64,21 +68,23 @@
       <rect x="6.5" y="21" width="8.4" height="5" rx="1.6"/><rect x="15.8" y="13" width="8.4" height="5" rx="1.6"/><rect x="25.1" y="18" width="8.4" height="5" rx="1.6"/></g>
   </svg>
   <h1>Mixer</h1>
+  <div class="lang" data-lang-switch></div>
 </header>
 
 <main>
-  <div class="lcd empty" id="lcd" role="status" aria-live="polite"></div>
-  <div class="msg" id="msg">Solo te lo pedirá esta vez en este dispositivo.</div>
+  <div class="lcd empty" id="lcd" role="status" aria-live="polite" data-i18n-ph="login.prompt"></div>
+  <div class="msg" id="msg" data-i18n="login.hint"></div>
   <div class="pad" id="pad">
     <button class="k" data-d="1">1</button><button class="k" data-d="2">2</button><button class="k" data-d="3">3</button>
     <button class="k" data-d="4">4</button><button class="k" data-d="5">5</button><button class="k" data-d="6">6</button>
     <button class="k" data-d="7">7</button><button class="k" data-d="8">8</button><button class="k" data-d="9">9</button>
-    <button class="k fn" id="del" aria-label="Borrar"><svg viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="m13 9.5 5 5M18 9.5l-5 5"/></svg></button>
+    <button class="k fn" id="del" data-i18n-aria="login.delete"><svg viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="m13 9.5 5 5M18 9.5l-5 5"/></svg></button>
     <button class="k" data-d="0">0</button>
-    <button class="k fn go" id="go">Entrar</button>
+    <button class="k fn go" id="go" data-i18n="login.enter"></button>
   </div>
 </main>
 
+<script src="/static/i18n.js"></script>
 <script>
 const lcd = document.getElementById('lcd'), msg = document.getElementById('msg'), go = document.getElementById('go');
 let pin = '', busy = false, lockT = null;
@@ -89,7 +95,7 @@ function draw() {
   lcd.classList.toggle('empty', !pin.length);
   go.disabled = busy || pin.length < MIN;
 }
-function say(t, err) { msg.textContent = t; msg.classList.toggle('err', !!err); }
+function say(text, err) { msg.textContent = text; msg.classList.toggle('err', !!err); }
 function add(d) { if (busy || lockT || pin.length >= MAX) return; pin += d; say(''); draw(); }
 function del() { if (busy || lockT) return; pin = pin.slice(0, -1); draw(); }
 
@@ -99,7 +105,7 @@ function startLock(sec) {
   const tick = () => {
     const left = Math.max(0, Math.round((end - Date.now()) / 1000));
     if (!left) { clearInterval(lockT); lockT = null; say(''); draw(); return; }
-    say('Demasiados intentos. Prueba de nuevo en ' + Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0'), true);
+    say(t('login.locked', { t:Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0') }), true);
   };
   lockT = setInterval(tick, 500); tick();
 }
@@ -110,12 +116,13 @@ async function submit() {
   try {
     const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ pin }) });
     const d = await r.json().catch(() => ({}));
-    if (r.ok) { say('Entrando…'); location.replace('/'); return; }
+    if (r.ok) { say(t('login.entering')); location.replace('/'); return; }
     pin = ''; lcd.classList.remove('bad'); void lcd.offsetWidth; lcd.classList.add('bad');
     if (r.status === 429 || d.wait) startLock(d.wait || 300);
-    else say(d.error || 'No se pudo comprobar el PIN', true);
-    if (r.status === 401 && d.left != null && !d.wait) say('PIN incorrecto. Te quedan ' + d.left + ' intentos.', true);
-  } catch { say('No hay conexión con el PC.', true); }
+    else if (d.code === 'broken') say(t('login.broken'), true);
+    else if (d.left != null) say(t('login.bad', { n:d.left }), true);
+    else say(d.code === 'bad_pin' ? t('login.wrong') : t('login.fail'), true);
+  } catch { say(t('login.noConn'), true); }
   busy = false; draw();
 }
 

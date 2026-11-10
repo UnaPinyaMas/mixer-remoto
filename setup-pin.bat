@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-python configurar_discord.py
+python setup_pin.py
 pause
