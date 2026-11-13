@@ -2,6 +2,14 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) · Versionado [SemVer](https://semver.org/lang/es/).
 
+## [1.0.1] — 2026-11-13
+
+🇬🇧 **Fixed**
+- The PIN is now also asked through Tailscale (`tailscale serve`). Those requests reach the server from 127.0.0.1 and were treated as coming from the PC itself.
+
+🇪🇸 **Corregido**
+- Ahora también se pide el PIN por Tailscale (`tailscale serve`). Esas peticiones llegan al servidor desde 127.0.0.1 y se trataban como si vinieran del propio PC.
+
 ## [1.0.0] — 2026-11-10
 
 🇬🇧 **First release.**

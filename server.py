@@ -804,7 +804,10 @@ def pin_cfg():
 
 
 def is_loopback():
-    return request.remote_addr in ("127.0.0.1", "::1")
+    """De verdad desde este PC. Lo que llega por Tailscale (tailscale serve) también viene de 127.0.0.1,
+    pero trae su cabecera Tailscale-User-Login o un nombre .ts.net: eso es el móvil y sí pide PIN."""
+    return (request.remote_addr in ("127.0.0.1", "::1") and not request.headers.get("Tailscale-User-Login")
+            and not request.host.lower().split(":")[0].endswith(".ts.net"))
 
 
 def _sign(cfg, exp):
